@@ -12,7 +12,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Adress {
+public class Address {
     @Field(type = FieldType.Keyword)
     private String streetNumber;
 
