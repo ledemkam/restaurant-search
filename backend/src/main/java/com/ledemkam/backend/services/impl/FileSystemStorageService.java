@@ -1,6 +1,6 @@
 package com.ledemkam.backend.services.impl;
 
-import com.ledemkam.backend.entities.Photo;
+import com.ledemkam.backend.domain.entities.Photo;
 import com.ledemkam.backend.exceptions.StorageException;
 import com.ledemkam.backend.services.PhotoService;
 import com.ledemkam.backend.services.StorageService;

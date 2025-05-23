@@ -1,6 +1,6 @@
 package com.ledemkam.backend.exceptions.handler;
 
-import com.ledemkam.backend.dto.ErrorDto;
+import com.ledemkam.backend.domain.dtos.ErrorDto;
 import com.ledemkam.backend.exceptions.StorageException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;

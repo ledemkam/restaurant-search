@@ -1,4 +1,4 @@
-package com.ledemkam.backend.dto;
+package com.ledemkam.backend.domain.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

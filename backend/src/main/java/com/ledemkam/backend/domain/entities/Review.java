@@ -1,4 +1,4 @@
-package com.ledemkam.backend.entities;
+package com.ledemkam.backend.domain.entities;
 
 import lombok.*;
 import org.springframework.data.elasticsearch.annotations.DateFormat;

@@ -1,6 +1,6 @@
 package com.ledemkam.backend.services;
 
-import com.ledemkam.backend.entities.Photo;
+import com.ledemkam.backend.domain.entities.Photo;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
