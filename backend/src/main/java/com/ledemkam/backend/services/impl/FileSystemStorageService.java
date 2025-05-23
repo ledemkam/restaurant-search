@@ -1,8 +1,11 @@
 package com.ledemkam.backend.services.impl;
 
+import com.ledemkam.backend.entities.Photo;
 import com.ledemkam.backend.exceptions.StorageException;
+import com.ledemkam.backend.services.PhotoService;
 import com.ledemkam.backend.services.StorageService;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -18,7 +21,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Service
@@ -89,6 +94,33 @@ public class FileSystemStorageService implements StorageService {
         } catch (MalformedURLException e) {
             log.debug("Could not read file: " + filename, e);
             return Optional.empty();
+        }
+    }
+
+    @Service
+    @RequiredArgsConstructor
+    public static class PhotoServiceImpl implements PhotoService {
+        private final StorageService storageService;
+
+        @Override
+        public Photo uploadPhoto(MultipartFile file) {
+            // Generate a unique ID for the photo
+            String photoId = UUID.randomUUID().toString();
+
+            // Store the file and get its URL
+            String url = storageService.store(file, photoId);
+
+            // Create and populate the photo entity
+            Photo photo = new Photo();
+            photo.setUrl(url);
+            photo.setUploadDate(LocalDateTime.now());
+
+            return photo;
+        }
+
+        @Override
+       public Optional<Resource> getPhotoAsResource(String id) {
+            return storageService.loadAsResource(id);
         }
     }
 }
