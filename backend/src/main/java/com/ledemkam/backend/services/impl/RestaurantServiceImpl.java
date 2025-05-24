@@ -26,7 +26,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     public Restaurant createRestaurant(RestaurantCreateUpdateRequest request) {
 
         Address address = request.getAddress();
-        GeoLocation geoLocation = geoLocationService.getGeoLocation(address);
+        GeoLocation geoLocation = geoLocationService.geoLocate(address);
         GeoPoint geoPoint = new GeoPoint(geoLocation.getLatitude(), geoLocation.getLongitude());
 
         List<String> photoIds = request.getPhotoIds();
