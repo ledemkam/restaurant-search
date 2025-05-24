@@ -74,4 +74,10 @@ public class RestaurantController {
         // Convert and return the updated restaurant
         return ResponseEntity.ok(restaurantMapper.toRestaurantDto(updated));
     }
+
+    @DeleteMapping("/{restaurantId}")
+    public ResponseEntity<Void> deleteRestaurant(@PathVariable String restaurantId) {
+        restaurantService.deleteRestaurant(restaurantId);
+        return ResponseEntity.noContent().build();
+    }
 }
