@@ -71,4 +71,12 @@ public class GlobalExceptionHandler {
         errorDto.setError(ex.getMessage());
         return new ResponseEntity<>(errorDto, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorDto> handleRestaurantNotFoundException(RuntimeException ex) {
+        log.error("Caught RestaurantNotFoundException", ex);
+        ErrorDto errorDto = new ErrorDto();
+        errorDto.setError("The specified restaurant wasn't found\": " + ex.getMessage());
+        return new ResponseEntity<>(errorDto, HttpStatus.NOT_FOUND);
+    }
 }
