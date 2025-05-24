@@ -5,6 +5,7 @@ import com.ledemkam.backend.domain.entities.GeoLocation;
 import com.ledemkam.backend.domain.entities.Photo;
 import com.ledemkam.backend.domain.entities.Restaurant;
 import com.ledemkam.backend.domain.request.RestaurantCreateUpdateRequest;
+import com.ledemkam.backend.exceptions.RestaurantNotFoundException;
 import com.ledemkam.backend.repository.RestaurantRepository;
 import com.ledemkam.backend.services.GeoLocationService;
 import com.ledemkam.backend.services.RestaurantService;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -87,6 +90,36 @@ public class RestaurantServiceImpl implements RestaurantService {
     public Optional<Restaurant> getRestaurant(String id) {
         // Delegate to the repository to fetch the restaurant by ID
         return restaurantRepository.findById(id);
+    }
+
+    @Override
+    public Restaurant updateRestaurant(String id, RestaurantCreateUpdateRequest restaurantCreateUpdateRequest) {
+        // First, verify the restaurant exists
+        Restaurant existingRestaurant = getRestaurant(id)
+                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant with ID does not exist: " + id));
+
+        // Get new geo coordinates based on the updated address
+        GeoLocation newGeoLocation = geoLocationService.geoLocate(restaurantCreateUpdateRequest.getAddress());
+        GeoPoint newGeoPoint = new GeoPoint(newGeoLocation.getLatitude(), newGeoLocation.getLongitude());
+
+        // Convert photo URLs to Photo entities
+        List<Photo> photos = restaurantCreateUpdateRequest.getPhotoIds().stream().map(photoUrl ->
+                Photo.builder()
+                        .url(photoUrl)
+                        .uploadDate(LocalDateTime.now())
+                        .build()
+        ).toList();
+
+        // Update all fields except averageRating
+        existingRestaurant.setName(restaurantCreateUpdateRequest.getName());
+        existingRestaurant.setCuisineType(restaurantCreateUpdateRequest.getCuisineType());
+        existingRestaurant.setContactInformation(restaurantCreateUpdateRequest.getContactInformation());
+        existingRestaurant.setAddress(restaurantCreateUpdateRequest.getAddress());
+        existingRestaurant.setGeoLocation(newGeoPoint);
+        existingRestaurant.setOperatingHours(restaurantCreateUpdateRequest.getOperatingHours());
+        existingRestaurant.setPhotos(photos);
+
+        return restaurantRepository.save(existingRestaurant);
     }
 
 }
