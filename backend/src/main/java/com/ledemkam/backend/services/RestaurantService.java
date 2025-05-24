@@ -17,5 +17,6 @@ public interface RestaurantService {
                                        Pageable pageable);
     Optional<Restaurant> getRestaurant(String id);
     Restaurant updateRestaurant(String id, RestaurantCreateUpdateRequest restaurant);
+    void deleteRestaurant(String id);
 }
 
