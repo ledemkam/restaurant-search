@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 public interface RestaurantRepository extends ElasticsearchRepository<Restaurant,String> {
 
     //search for restaurants by minimum rating
-    Page<Restaurant> searchfindByAverageRatingGreaterThanEqualSimilar(Float minRating, Pageable pageable);
+    Page<Restaurant> findByAverageRatingGreaterThanEqual(Float minRating, Pageable pageable);
 
     @Query("{" +
             "  \"bool\": {" +
