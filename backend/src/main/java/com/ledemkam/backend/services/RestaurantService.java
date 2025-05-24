@@ -12,5 +12,5 @@ public interface RestaurantService {
                                        Float latitude,
                                        Float longitude,
                                        Float radius,
-                                       Pageable pageable))
+                                       Pageable pageable);
 }
