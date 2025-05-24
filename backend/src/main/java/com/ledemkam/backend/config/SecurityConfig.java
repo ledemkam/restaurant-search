@@ -21,6 +21,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // allow for loading of photos
                         .requestMatchers(HttpMethod.GET,"/api/photos/**").permitAll()
+                        // Allow public access to restaurant search
+                        .requestMatchers("/api/restaurants/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 ->
