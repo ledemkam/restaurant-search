@@ -102,4 +102,13 @@ public class ReviewController {
         // Return updated review
         return ResponseEntity.ok(reviewMapper.toDto(updatedReview));
     }
+
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<Void> deleteReview(
+            @PathVariable String restaurantId,
+            @PathVariable String reviewId
+    ) {
+        reviewService.deleteReview(restaurantId, reviewId);
+        return ResponseEntity.noContent().build();
+    }
 }
