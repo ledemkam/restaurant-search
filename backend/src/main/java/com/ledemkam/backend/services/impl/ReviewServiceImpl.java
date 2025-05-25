@@ -10,11 +10,14 @@ import com.ledemkam.backend.exceptions.ReviewNotAllowedException;
 import com.ledemkam.backend.repository.RestaurantRepository;
 import com.ledemkam.backend.services.ReviewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,5 +90,47 @@ public class ReviewServiceImpl implements ReviewService {
                     .orElse(0.0);
             restaurant.setAverageRating(averageRating);
         }
+    }
+
+    @Override
+    public Page<Review> listReviews(String restaurantId, Pageable pageable) {
+        // Get the restaurant or throw an exception if not found
+        Restaurant restaurant = getRestaurantOrThrow(restaurantId);
+
+        // Create a list of reviews
+        List<Review> reviews = new ArrayList<>(restaurant.getReviews());
+
+        // Apply sorting based on the Pageable's Sort
+        Sort sort = pageable.getSort();
+
+        if (sort.isSorted()) {
+            Sort.Order order = sort.iterator().next();
+            String property = order.getProperty();
+            boolean isAscending = order.getDirection().isAscending();
+
+            Comparator<Review> comparator = switch (property) {
+                case "datePosted" -> Comparator.comparing(Review::getDatePosted);
+                case "rating" -> Comparator.comparing(Review::getRating);
+                default -> Comparator.comparing(Review::getDatePosted);
+            };
+
+            reviews.sort(isAscending ? comparator : comparator.reversed());
+        } else {
+            // Default sort by date descending
+            reviews.sort(Comparator.comparing(Review::getDatePosted).reversed());
+        }
+
+        // Calculate pagination boundaries
+        int start = (int) pageable.getOffset();
+
+        // Handle empty pages
+        if (start >= reviews.size()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, reviews.size());
+        }
+
+        int end = Math.min((start + pageable.getPageSize()), reviews.size());
+
+        // Create the page of reviews
+        return new PageImpl<>(reviews.subList(start, end), pageable, reviews.size());
     }
 }
