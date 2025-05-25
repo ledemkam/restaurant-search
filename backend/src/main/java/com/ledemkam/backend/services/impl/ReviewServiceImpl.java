@@ -133,4 +133,12 @@ public class ReviewServiceImpl implements ReviewService {
         // Create the page of reviews
         return new PageImpl<>(reviews.subList(start, end), pageable, reviews.size());
     }
+
+    @Override
+    public Optional<Review> getRestaurantReview(String restaurantId, String reviewId) {
+        Restaurant restaurant = getRestaurantOrThrow(restaurantId);
+        return restaurant.getReviews().stream()
+                .filter(r -> reviewId.equals(r.getId()))
+                .findFirst();
+    }
 }
