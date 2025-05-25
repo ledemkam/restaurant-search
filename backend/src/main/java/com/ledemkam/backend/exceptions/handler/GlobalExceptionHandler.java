@@ -91,7 +91,7 @@ public class GlobalExceptionHandler {
             log.error("Caused by: ", ex.getCause());
         }
 
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
 
     }
 }
