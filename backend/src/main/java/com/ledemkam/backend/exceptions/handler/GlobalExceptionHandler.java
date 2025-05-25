@@ -1,6 +1,7 @@
 package com.ledemkam.backend.exceptions.handler;
 
 import com.ledemkam.backend.domain.dtos.ErrorDto;
+import com.ledemkam.backend.exceptions.ReviewNotAllowedException;
 import com.ledemkam.backend.exceptions.StorageException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -78,5 +79,19 @@ public class GlobalExceptionHandler {
         ErrorDto errorDto = new ErrorDto();
         errorDto.setError("The specified restaurant wasn't found\": " + ex.getMessage());
         return new ResponseEntity<>(errorDto, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ReviewNotAllowedException.class)
+    public ResponseEntity<ErrorDto> handleReviewNotAllowedException(ReviewNotAllowedException ex) {
+        log.error("Caught ReviewNotAllowedException", ex);
+        ErrorDto error = new ErrorDto();
+        error.setError(ex.getMessage());
+
+        if (ex.getCause() != null) {
+            log.error("Caused by: ", ex.getCause());
+        }
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+
     }
 }
