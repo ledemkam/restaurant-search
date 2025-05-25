@@ -78,4 +78,28 @@ public class ReviewController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.noContent().build());
     }
+
+    @PutMapping("/{reviewId}")
+    public ResponseEntity<ReviewDto> updateReview(
+            @PathVariable String restaurantId,
+            @PathVariable String reviewId,
+            @Valid @RequestBody ReviewCreateUpdateRequestDto review,
+            @AuthenticationPrincipal Jwt jwt) {
+        // Convert the DTO to domain object
+        ReviewCreateUpdateRequest reviewCreateUpdateRequest =
+                reviewMapper.toReviewCreateUpdateRequest(review);
+
+        // Extract user information from JWT
+        User user = jwtToUser(jwt);
+
+        // Call service to perform update
+        Review updatedReview = reviewService.updateReview(
+                user,
+                restaurantId,
+                reviewId,
+                reviewCreateUpdateRequest);
+
+        // Return updated review
+        return ResponseEntity.ok(reviewMapper.toDto(updatedReview));
+    }
 }
