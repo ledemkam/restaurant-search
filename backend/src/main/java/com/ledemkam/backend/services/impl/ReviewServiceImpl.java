@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -140,5 +141,51 @@ public class ReviewServiceImpl implements ReviewService {
         return restaurant.getReviews().stream()
                 .filter(r -> reviewId.equals(r.getId()))
                 .findFirst();
+    }
+
+    @Override
+    public Review updateReview(User user, String restaurantId, String reviewId,
+                               ReviewCreateUpdateRequest updatedReview) {
+        // Get the restaurant or throw an exception if not found
+        Restaurant restaurant = getRestaurantOrThrow(restaurantId);
+
+        String currentUserId = user.getId();
+
+        // Find the review and verify ownership
+        List<Review> reviews = restaurant.getReviews();
+        Review existingReview = reviews.stream()
+                .filter(r -> r.getId().equals(reviewId) &&
+                        r.getWrittenBy().getId().equals(currentUserId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found"));
+
+        // Verify the 48-hour edit window
+        if (LocalDateTime.now().isAfter(existingReview.getDatePosted().plusHours(48))) {
+            throw new ReviewNotAllowedException("Review can no longer be edited (48-hour limit exceeded)");
+        }
+
+        // Update the review content
+        existingReview.setContent(updatedReview.getContent());
+        existingReview.setRating(updatedReview.getRating());
+        existingReview.setLastEdited(LocalDateTime.now());
+
+        // Update photos
+        existingReview.setPhotos(updatedReview.getPhotoIds().stream()
+                .map(url -> {
+                    Photo photo = new Photo();
+                    photo.setUrl(url);
+                    photo.setUploadDate(LocalDateTime.now());
+                    return photo;
+                }).collect(Collectors.toList()));
+
+        // Recalculate restaurant's average rating
+        updateRestaurantAverageRating(restaurant);
+
+        // Save and return the updated review
+        Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+        return savedRestaurant.getReviews().stream()
+                .filter(r -> r.getId().equals(reviewId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Error retrieving updated review"));
     }
 }
