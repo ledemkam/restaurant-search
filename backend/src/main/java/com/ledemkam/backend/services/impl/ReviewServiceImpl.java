@@ -188,4 +188,24 @@ public class ReviewServiceImpl implements ReviewService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Error retrieving updated review"));
     }
+
+    @Override
+    public void deleteReview(String restaurantId, String reviewId) {
+        // Get the restaurant or throw an exception if not found
+        Restaurant restaurant = getRestaurantOrThrow(restaurantId);
+
+        // Filter out the review with the matching ID
+        List<Review> filteredReviews = restaurant.getReviews().stream()
+                .filter(review -> !reviewId.equals(review.getId()))
+                .toList();
+
+        // Update the restaurant's reviews
+        restaurant.setReviews(filteredReviews);
+
+        // Update the restaurant's average rating
+        updateRestaurantAverageRating(restaurant);
+
+        // Save the updated restaurant
+        restaurantRepository.save(restaurant);
+    }
 }
